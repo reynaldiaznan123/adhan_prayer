@@ -33,6 +33,7 @@ class PrayerTimeCountDown extends StatefulWidget {
 class _PrayerTimeCountDownState extends State<PrayerTimeCountDown> {
   late final StreamController<Duration> _controller;
   late final Stream<Duration> _stream;
+  late final Timer _timer;
 
   Future<void> _initialize() async {
     _controller = StreamController<Duration>();
@@ -52,7 +53,7 @@ class _PrayerTimeCountDownState extends State<PrayerTimeCountDown> {
         coordinates: coordinates,
         parameters: parameters,
       );
-      Timer.periodic(const Duration(seconds: 1), (timer) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         DateTime? time = current.timeForPrayer(current.nextPrayer());
         if (previous.nextPrayer() != Prayer.none) {
           time = previous.timeForPrayer(previous.nextPrayer());
@@ -90,6 +91,7 @@ class _PrayerTimeCountDownState extends State<PrayerTimeCountDown> {
 
   @override
   void dispose() {
+    _timer.cancel();
     _controller.close();
     super.dispose();
   }
@@ -126,6 +128,8 @@ class _PrayerNowScheduleState extends State<PrayerNowSchedule> {
 
   Prayer? _cache;
 
+  Timer? _timer;
+
   Future<void> _initialize() async {
     try {
       final coordinates = widget.coordinates;
@@ -141,7 +145,7 @@ class _PrayerNowScheduleState extends State<PrayerNowSchedule> {
         coordinates: coordinates,
         parameters: parameters,
       );
-      Timer.periodic(const Duration(seconds: 1), (timer) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (_prev!.nextPrayer() != Prayer.none) {
           setState(() {
             _cache = _prev!.nextPrayer();
@@ -176,6 +180,12 @@ class _PrayerNowScheduleState extends State<PrayerNowSchedule> {
   void initState() {
     _initialize();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
