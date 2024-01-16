@@ -159,7 +159,7 @@ class PrayerTimes {
 
     final transit = date.fromDouble(solarTime.transit)?.utc();
     final sunrise = date.fromDouble(solarTime.sunrise)?.utc();
-    final dhuha = date.fromDouble(solarTime.hourAngle(parameters.dhuhaAngle ?? 6.6, false))?.utc();
+    final dhuha = date.fromDouble(solarTime.hourAngle(parameters.dhuhaAngle ?? 15.0, false))?.utc();
     final sunset = date.fromDouble(solarTime.sunset)?.utc();
 
     final sunriseAfter = dateAfter.fromDouble(solarTimeAfter.sunrise)?.utc();

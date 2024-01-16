@@ -196,6 +196,7 @@ class CalculationMethod {
           method: type,
           fajrAngle: 20.0,
           ishaAngle: 18.0,
+          dhuhaAngle: 6.6,
           methodAdjustments: const PrayerAdjustments(
             fajr: 2,
             dhuhr: 3,
