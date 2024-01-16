@@ -140,10 +140,6 @@ class SolarCoordinates {
     );
 
     /* Equation from Astronomical Algorithms page 88 */
-    _apparentSiderealTime = theta0 + (
-      (
-        (deltaPsi * 3600) * cos(MathUtil.radians(epsilon0 + deltaEpsilon))
-      ) / 3600
-    );
+    _apparentSiderealTime = theta0 + (((deltaPsi * 3600) * cos(MathUtil.radians(epsilon0 + deltaEpsilon))) / 3600);
   }
 }

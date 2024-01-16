@@ -4,6 +4,8 @@ class PrayerAdjustments {
   /// Sunrise offset in minutes
   final int sunrise;
 
+  final int dhuha;
+
   /// Dhuhr offset in minutes
   final int dhuhr;
 
@@ -28,6 +30,7 @@ class PrayerAdjustments {
   const PrayerAdjustments({
     this.fajr = 0,
     this.sunrise = 0,
+    this.dhuha = 0,
     this.dhuhr = 0,
     this.asr = 0,
     this.sunset = 0,

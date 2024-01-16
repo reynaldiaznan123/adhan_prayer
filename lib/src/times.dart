@@ -11,6 +11,7 @@ enum Prayer {
   none,
   fajr,
   sunrise,
+  dhuha,
   dhuhr,
   asr,
   sunset,
@@ -26,6 +27,9 @@ class PrayerTimes {
 
   late DateTime? _sunrise;
   DateTime? get sunrise => _sunrise;
+
+  late DateTime? _dhuha;
+  DateTime? get dhuha => _dhuha;
 
   late DateTime? _dhuhr;
   DateTime? get dhuhr => _dhuhr;
@@ -77,11 +81,11 @@ class PrayerTimes {
   }) {
     final now = DateTime.now();
     return PrayerTimes._(
-        coordinates,
-        DateTime(now.year, now.month, now.day),
-        parameters,
-        offset: offset,
-        precision: precision,
+      coordinates,
+      DateTime(now.year, now.month, now.day),
+      parameters,
+      offset: offset,
+      precision: precision,
     );
   }
 
@@ -95,11 +99,11 @@ class PrayerTimes {
       days: 1,
     ));
     return PrayerTimes._(
-        coordinates,
-        DateTime(now.year, now.month, now.day),
-        parameters,
-        offset: offset,
-        precision: precision,
+      coordinates,
+      DateTime(now.year, now.month, now.day),
+      parameters,
+      offset: offset,
+      precision: precision,
     );
   }
 
@@ -113,23 +117,21 @@ class PrayerTimes {
       days: 1,
     ));
     return PrayerTimes._(
-        coordinates,
-        DateTime(now.year, now.month, now.day),
-        parameters,
-        offset: offset,
-        precision: precision,
+      coordinates,
+      DateTime(now.year, now.month, now.day),
+      parameters,
+      offset: offset,
+      precision: precision,
     );
   }
 
   PrayerTimes._(
     this.coordinates,
     DateTime _date,
-    this.parameters,
-    {
-      Duration? offset,
-      bool precision = false,
-    }
-  ) {
+    this.parameters, {
+    Duration? offset,
+    bool precision = false,
+  }) {
     final DateTime date = _date;
     final DateTime dateBefore = date.subtract(const Duration(
       days: 1,
@@ -150,13 +152,14 @@ class PrayerTimes {
 
     final year = date.year;
     final dayOfYear = date.dayOfYear;
-    
+
     final solarTime = SolarTime(date, coordinates);
     final solarTimeBefore = SolarTime(dateBefore, coordinates);
     final solarTimeAfter = SolarTime(dateAfter, coordinates);
 
     final transit = date.fromDouble(solarTime.transit)?.utc();
     final sunrise = date.fromDouble(solarTime.sunrise)?.utc();
+    final dhuha = date.fromDouble(solarTime.hourAngle(parameters.dhuhaAngle ?? 6.6, false))?.utc();
     final sunset = date.fromDouble(solarTime.sunset)?.utc();
 
     final sunriseAfter = dateAfter.fromDouble(solarTimeAfter.sunrise)?.utc();
@@ -167,17 +170,10 @@ class PrayerTimes {
     final tomorrow = date.add(const Duration(days: 1));
     final tomorrowSolarTime = SolarTime(tomorrow, coordinates);
     final tomorrowSunrise = tomorrow.fromDouble(tomorrowSolarTime.sunrise)?.utc();
-    final tomorrowFajr = tomorrow.fromDouble(tomorrowSolarTime.hourAngle(
-      -1 * parameters.fajrAngle,
-      false,
-    ))?.utc();
+    final tomorrowFajr = tomorrow.fromDouble(tomorrowSolarTime.hourAngle(-1 * parameters.fajrAngle, false))?.utc();
 
-    fajr = date.fromDouble(
-      solarTime.hourAngle(-1 * parameters.fajrAngle, false),
-    )?.utc();
-    fajrAfter = dateAfter.fromDouble(
-      solarTimeAfter.hourAngle(-1 * parameters.fajrAngle, false)
-    )?.utc();
+    fajr = date.fromDouble(solarTime.hourAngle(-1 * parameters.fajrAngle, false))?.utc();
+    fajrAfter = dateAfter.fromDouble(solarTimeAfter.hourAngle(-1 * parameters.fajrAngle, false))?.utc();
 
     final error = transit == null || sunrise == null || sunset == null || tomorrowSunrise == null;
     if (!error) {
@@ -188,10 +184,7 @@ class PrayerTimes {
       final nightPortions = parameters.getNightPortions();
       double nightFraction = 0;
 
-      if (
-        parameters.method == CalcMethodType.moonSightingCommittee &&
-        coordinates.longitude >= 55.0
-      ) {
+      if (parameters.method == CalcMethodType.moonSightingCommittee && coordinates.longitude >= 55.0) {
         nightFraction = night / 7;
         fajr = sunrise.add(Duration(
           seconds: -1 * nightFraction.round(),
@@ -233,19 +226,11 @@ class PrayerTimes {
         }
       }
 
-      if (
-        fajr == null ||
-        fajr.millisecondsSinceEpoch.isNaN ||
-        safeFajr().isAfter(fajr)
-      ) {
+      if (fajr == null || fajr.millisecondsSinceEpoch.isNaN || safeFajr().isAfter(fajr)) {
         fajr = safeFajr();
       }
 
-      if (
-        fajrAfter == null ||
-        fajrAfter.millisecondsSinceEpoch.isNaN ||
-        safeFajrAfter().isAfter(fajrAfter)
-      ) {
+      if (fajrAfter == null || fajrAfter.millisecondsSinceEpoch.isNaN || safeFajrAfter().isAfter(fajrAfter)) {
         fajrAfter = safeFajrAfter();
       }
 
@@ -257,25 +242,26 @@ class PrayerTimes {
           minutes: parameters.ishaInterval!,
         ));
       } else {
-        isha = date.fromDouble(solarTime.hourAngle(
-          -1 * parameters.ishaAngle,
-          true,
-        ))?.utc();
-        ishaBefore = dateBefore.fromDouble(solarTimeBefore.hourAngle(
-          -1 * parameters.ishaAngle,
-          true,
-        ))?.utc();
+        isha = date
+            .fromDouble(solarTime.hourAngle(
+              -1 * parameters.ishaAngle,
+              true,
+            ))
+            ?.utc();
+        ishaBefore = dateBefore
+            .fromDouble(solarTimeBefore.hourAngle(
+              -1 * parameters.ishaAngle,
+              true,
+            ))
+            ?.utc();
 
-        if (
-          parameters.method == CalcMethodType.moonSightingCommittee &&
-          coordinates.latitude >= 55.0
-        ) {
+        if (parameters.method == CalcMethodType.moonSightingCommittee && coordinates.latitude >= 55.0) {
           nightFraction = night / 7;
           isha = sunset.add(Duration(
             seconds: nightFraction.round(),
           ));
           ishaBefore = sunsetBefore?.add(Duration(
-            seconds:  nightFraction.round(),
+            seconds: nightFraction.round(),
           ));
         }
 
@@ -311,34 +297,24 @@ class PrayerTimes {
           }
         }
 
-        if (
-          isha == null ||
-          isha.millisecondsSinceEpoch.isNaN ||
-          safeIsha().isBefore(isha)
-        ) {
+        if (isha == null || isha.millisecondsSinceEpoch.isNaN || safeIsha().isBefore(isha)) {
           isha = safeIsha();
         }
 
-        if (
-          ishaBefore == null ||
-          ishaBefore.millisecondsSinceEpoch.isNaN ||
-          safeIshaBefore().isBefore(ishaBefore)
-        ) {
+        if (ishaBefore == null || ishaBefore.millisecondsSinceEpoch.isNaN || safeIshaBefore().isBefore(ishaBefore)) {
           ishaBefore = safeIshaBefore();
         }
       }
 
       maghrib = sunset;
       if (parameters.maghribAngle != null) {
-        final angleBasedMaghrib = date.fromDouble(solarTime.hourAngle(
-          -1 * parameters.maghribAngle!,
-          true,
-        ))?.utc();
-        if (
-          angleBasedMaghrib != null &&
-          sunset.isBefore(angleBasedMaghrib) &&
-          isha.isAfter(angleBasedMaghrib)
-        ) {
+        final angleBasedMaghrib = date
+            .fromDouble(solarTime.hourAngle(
+              -1 * parameters.maghribAngle!,
+              true,
+            ))
+            ?.utc();
+        if (angleBasedMaghrib != null && sunset.isBefore(angleBasedMaghrib) && isha.isAfter(angleBasedMaghrib)) {
           maghrib = angleBasedMaghrib;
         }
       }
@@ -361,6 +337,17 @@ class PrayerTimes {
       ));
       _sunrise = _sunrise?.toLocal();
 
+      if (dhuha != null) {
+        _dhuha = CalendarUtil.roundedMinute(dhuha, precision: precision);
+        _dhuha = _dhuha?.add(Duration(
+          minutes: parameters.adjustments.dhuha,
+        ));
+        _dhuha = _dhuha?.add(Duration(
+          minutes: parameters.methodAdjustments.dhuha,
+        ));
+        _dhuha = _dhuha?.toLocal();
+      }
+
       _dhuhr = CalendarUtil.roundedMinute(dhuhr, precision: precision);
       _dhuhr = _dhuhr?.add(Duration(
         minutes: parameters.adjustments.dhuhr,
@@ -370,18 +357,18 @@ class PrayerTimes {
       ));
       _dhuhr = _dhuhr?.toLocal();
 
-    if (asr != null) {
-      _asr = CalendarUtil.roundedMinute(asr, precision: precision);
-      _asr = _asr?.add(Duration(
-        minutes: parameters.adjustments.asr,
-      ));
-      _asr = _asr?.add(Duration(
-        minutes: parameters.methodAdjustments.asr,
-      ));
-      _asr = _asr?.toLocal();
-    }
+      if (asr != null) {
+        _asr = CalendarUtil.roundedMinute(asr, precision: precision);
+        _asr = _asr?.add(Duration(
+          minutes: parameters.adjustments.asr,
+        ));
+        _asr = _asr?.add(Duration(
+          minutes: parameters.methodAdjustments.asr,
+        ));
+        _asr = _asr?.toLocal();
+      }
 
-        _sunset = CalendarUtil.roundedMinute(sunset, precision: precision);
+      _sunset = CalendarUtil.roundedMinute(sunset, precision: precision);
       _sunset = _sunset?.add(Duration(
         minutes: parameters.adjustments.sunset,
       ));
@@ -409,9 +396,11 @@ class PrayerTimes {
       _isha = _isha?.toLocal();
 
       if (tomorrowFajr != null) {
-        midNight = maghrib.add(Duration(
-          seconds: tomorrowFajr.difference(maghrib).inSeconds ~/ 2,
-        )).utc();
+        midNight = maghrib
+            .add(Duration(
+              seconds: tomorrowFajr.difference(maghrib).inSeconds ~/ 2,
+            ))
+            .utc();
 
         _midNight = CalendarUtil.roundedMinute(midNight, precision: precision);
         _midNight = _midNight?.add(Duration(
@@ -452,7 +441,6 @@ class PrayerTimes {
   late final LocationCoordinates coordinates;
   late final DateTime date;
   late final CalculationParameters parameters;
-
 
   static DateTime _seasonAdjustedMorningTwilight(
     double latitude,
@@ -557,7 +545,7 @@ class PrayerTimes {
       return Prayer.maghrib;
     } else if (isha != null && when <= isha!.millisecondsSinceEpoch) {
       return Prayer.isha;
-    } else if(midNight != null && when <= midNight!.millisecondsSinceEpoch) {
+    } else if (midNight != null && when <= midNight!.millisecondsSinceEpoch) {
       return Prayer.midnight;
     } else if (thirdNight != null && when <= thirdNight!.millisecondsSinceEpoch) {
       return Prayer.thirdnight;

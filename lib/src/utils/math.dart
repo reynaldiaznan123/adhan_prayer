@@ -14,7 +14,7 @@ class MathUtil {
   static double radians(double degrees) => (degrees * pi) / 180.0;
 
   static double normalizeWithBound(double value, double max) {
-    return value - (max * ((value / max).floorToDouble()));
+    return value - (max * (value / max).floorToDouble());
   }
 
   static double unwindAngle(double value) {
