@@ -62,6 +62,32 @@ class CalculationParameters {
         );
     }
   }
+
+  CalculationParameters copyWith({
+    CalcMethodType? method,
+    double? fajrAngle,
+    double? dhuhaAngle,
+    double? maghribAngle,
+    double? ishaAngle,
+    int? ishaInterval,
+    Madhab? madhab,
+    HighLatitudeRule? highLatitudeRule,
+    PrayerAdjustments? adjustments,
+    PrayerAdjustments? methodAdjustments,
+  }) {
+    return CalculationParameters(
+      method: method ?? this.method,
+      fajrAngle: fajrAngle ?? this.fajrAngle,
+      dhuhaAngle: dhuhaAngle ?? this.dhuhaAngle,
+      maghribAngle: maghribAngle ?? this.maghribAngle,
+      ishaAngle: ishaAngle ?? this.ishaAngle,
+      ishaInterval: ishaInterval ?? this.ishaInterval,
+      madhab: madhab ?? this.madhab,
+      highLatitudeRule: highLatitudeRule ?? this.highLatitudeRule,
+      adjustments: adjustments ?? this.adjustments,
+      methodAdjustments: methodAdjustments ?? this.methodAdjustments,
+    );
+  }
 }
 
 class NightPortions {

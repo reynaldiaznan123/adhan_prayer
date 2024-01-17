@@ -339,14 +339,21 @@ class PrayerTimes {
 
       if (dhuha != null) {
         _dhuha = CalendarUtil.roundedMinute(dhuha, precision: precision);
-        _dhuha = _dhuha?.add(Duration(
-          minutes: parameters.adjustments.dhuha,
-        ));
-        _dhuha = _dhuha?.add(Duration(
-          minutes: parameters.methodAdjustments.dhuha,
-        ));
-        _dhuha = _dhuha?.toLocal();
+      } else {
+        _dhuha = CalendarUtil.roundedMinute(
+          sunrise.add(const Duration(
+            minutes: 30,
+          )),
+          precision: precision,
+        );
       }
+      _dhuha = _dhuha?.add(Duration(
+        minutes: parameters.adjustments.dhuha,
+      ));
+      _dhuha = _dhuha?.add(Duration(
+        minutes: parameters.methodAdjustments.dhuha,
+      ));
+      _dhuha = _dhuha?.toLocal();
 
       _dhuhr = CalendarUtil.roundedMinute(dhuhr, precision: precision);
       _dhuhr = _dhuhr?.add(Duration(

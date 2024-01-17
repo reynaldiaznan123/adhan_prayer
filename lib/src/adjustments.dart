@@ -39,4 +39,30 @@ class PrayerAdjustments {
     this.midNight = 0,
     this.thirdNight = 0,
   });
+
+  PrayerAdjustments copyWith({
+    int? fajr,
+    int? sunrise,
+    int? dhuha,
+    int? dhuhr,
+    int? asr,
+    int? sunset,
+    int? maghrib,
+    int? isha,
+    int? midNight,
+    int? thirdNight,
+  }) {
+    return PrayerAdjustments(
+      fajr: fajr ?? this.fajr,
+      sunrise: sunrise ?? this.sunrise,
+      dhuha: dhuha ?? this.dhuha,
+      dhuhr: dhuhr ?? this.dhuhr,
+      asr: asr ?? this.asr,
+      sunset: sunset ?? this.sunset,
+      maghrib: maghrib ?? this.maghrib,
+      isha: isha ?? this.isha,
+      midNight: midNight ?? this.midNight,
+      thirdNight: thirdNight ?? this.thirdNight,
+    );
+  }
 }

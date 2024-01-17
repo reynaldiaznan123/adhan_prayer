@@ -25,7 +25,7 @@ void main() {
       // longitude: 75.321398,
     ),
     date: DateTime(2024, 1, 1),
-    parameters: method.parameters(),
+    parameters: method.parameters().copyWith(dhuhaAngle: 15.0),
   );
 
   // int timezoneAdj = (7.0 * 60).toInt();
